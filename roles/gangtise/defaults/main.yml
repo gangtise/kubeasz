@@ -17,23 +17,23 @@ maxwell_image: 'gangtiseacr.azurecr.cn/quark-maxwell:1.0.7.4'
 response_client_image: 'gangtiseacr.azurecr.cn/quark-response-client:1.1.24.202'
 
 eureka_name: eureka
-EUREKA_SERVER: "http://{{ eureka_name }}-0.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/,http://{{ eureka_name }}-1.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/"
+EUREKA_SERVER: "'http://{{ eureka_name }}-0.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/,http://{{ eureka_name }}-1.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/''"
 LOG_FLATFILE_PATH: /export/home/log
 
 COMMAND_TIMEOUT: '80000'
 CONNECT_TIMEOUT: '20000'
 
 ES_CLUSTER_NAME: elasticsearch
-ES_NODES: '10.0.2.10:9300,10.0.2.11:9300,10.0.2.12:9300'
+ES_NODES: "'10.0.2.10:9300,10.0.2.11:9300,10.0.2.12:9300'"
 
-KAFKA_SERVERS: '10.0.3.20:9092,10.0.3.24:9092,10.0.3.26:9092'
+KAFKA_SERVERS: "'10.0.3.20:9092,10.0.3.24:9092,10.0.3.26:9092'"
 READ_TIMEOUT: '20000'
 REDIS_NODES: 'redis.default:6379'
 REDIS_PASSWORD: ''
 SPRING_ACTIVE: sit
 
-MYSQL_HOST: gangtisedb.mysql.database.chinacloudapi.cn
+MYSQL_HOST: "'gangtisedb.mysql.database.chinacloudapi.cn'"
 MYSQL_PORT: 3306
 MYSQL_USERNAME: ""
 MYSQL_PASSWORD: ""
-MYSQL_URL: "{{ MYSQL_HOST }}:{{ MYSQL_PORT }}"
+MYSQL_URL: "'{{ MYSQL_HOST }}:{{ MYSQL_PORT }}'"
