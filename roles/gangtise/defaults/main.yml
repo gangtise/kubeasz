@@ -17,7 +17,7 @@ maxwell_image: "'gangtiseacr.azurecr.cn/quark-maxwell:1.0.7.4'"
 response_client_image: "'gangtiseacr.azurecr.cn/quark-response-client:1.1.24.202'"
 
 eureka_name: eureka
-EUREKA_SERVER: "'http://{{ eureka_name }}-0.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/,http://{{ eureka_name }}-1.{{ eurek_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/'"
+EUREKA_SERVER: "http://{{ eureka_name }}-0.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/,http://{{ eureka_name }}-1.{{ eurek_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/"
 LOG_FLATFILE_PATH: /export/home/log
 
 COMMAND_TIMEOUT: "'80000'"
