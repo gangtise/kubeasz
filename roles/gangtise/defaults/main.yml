@@ -18,7 +18,7 @@ response_client_image: "'gangtiseacr.azurecr.cn/quark-response-client:1.1.24.202
 
 eureka_name: "eureka"
 
-EUREKA_SERVER: "http://{{ eureka_name }}-0.{{ eureka_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/,http://{{ eureka_name }}-1.{{ eurek_name }}.{{ spring_app_namespace }}.svc.cluster.local:1025/eureka/"
+EUREKA_SERVER: "http://eureka-0.eureka.spring-app.svc.cluster.local:1025/eureka/,http://eureka-1.eureka.spring-app.svc.cluster.local:1025/eureka/"
 LOG_FLATFILE_PATH: /export/home/log
 
 COMMAND_TIMEOUT: "'80000'"
@@ -37,4 +37,4 @@ MYSQL_HOST: "gangtisedb.mysql.database.chinacloudapi.cn"
 MYSQL_PORT: "3306"
 MYSQL_USERNAME: ""
 MYSQL_PASSWORD: ""
-MYSQL_URL: "'{{ MYSQL_HOST }}:{{ MYSQL_PORT }}'"
+MYSQL_URL: "'gangtisedb.mysql.database.chinacloudapi.cn:3306'"
