@@ -57,12 +57,11 @@ metadata:
   name: gangtise-userinfo-service
   namespace: {{ spring_app_namespace }}
 spec:
-  clusterIP: 10.234.39.60
   ports:
     - port: 10030
       protocol: TCP
       targetPort: 10030
   selector:
     app: gangtise-userinfo-service
-  type: ClusterIP
+  type: NodePort
 
