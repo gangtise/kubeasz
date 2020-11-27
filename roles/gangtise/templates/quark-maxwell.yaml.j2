@@ -23,18 +23,18 @@ spec:
         app: quark-maxwell
     spec:
       containers:
-        - env:
-            - name: CONFIG_NAME
-              value: ignite-parse.properties
-          image: {{ maxwell_image }}
-          imagePullPolicy: Always
-          name: quark-maxwell
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-            - mountPath: /maxwell/bin/config
-              name: maxwell-config-vm
+      - env:
+        - name: CONFIG_NAME
+          value: ignite-parse.properties
+        image: {{ maxwell_image }}
+        imagePullPolicy: Always
+        name: quark-maxwell
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /maxwell/bin/config
+          name: maxwell-config-vm
       dnsPolicy: ClusterFirst
       nodeSelector:
         nodeflag: ignite
@@ -45,17 +45,17 @@ spec:
       serviceAccountName: ignite
       terminationGracePeriodSeconds: 30
       tolerations:
-        - effect: NoSchedule
-          key: ignite-taint
-          operator: Exists
+      - effect: NoSchedule
+        key: ignite-taint
+        operator: Exists
       volumes:
-        - configMap:
-            defaultMode: 420
-            items:
-              - key: ignite-parse.properties
-                path: ignite-parse.properties
-            name: maxwell-config
-          name: maxwell-config-vm
+      - configMap:
+          defaultMode: 420
+          items:
+            - key: ignite-parse.properties
+              path: ignite-parse.properties
+          name: maxwell-config
+        name: maxwell-config-vm
 ---
 apiVersion: v1
 data:
@@ -84,7 +84,6 @@ data:
 
     #log_level=debug
 
-
     # mysql login info
 
     host={{ MYSQL_HOST }}
@@ -92,7 +91,6 @@ data:
     user={{ MYSQL_USERNAME }}
 
     password={{ MYSQL_PASSWORD }}
-
 
     port=MYSQL_PORT
 kind: ConfigMap
