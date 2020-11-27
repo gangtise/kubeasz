@@ -54,9 +54,7 @@
   run_once: true
 
 - name: 创建ignite部署
-  shell: |
-    "{{ bin_dir }}/kubectl apply -f /opt/gangtise/ignite.yaml"
-    "{{ bin_dir }}/kubectl exec -it ignite-0 -n ignite -- ./apache-ignite/bin/control.sh --activate --yes"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/ignite.yaml"
   run_once: true
 
 - name: 创建ignite控制台部署
@@ -75,3 +73,8 @@
   shell: ""
   run_once: true
 
+- name: 配置ignite部署
+  shell: |
+    echo "hello"
+    #"{{ bin_dir }}/kubectl exec -it ignite-0 -n ignite -- ./apache-ignite/bin/control.sh --activate --yes"
+  run_once: true
