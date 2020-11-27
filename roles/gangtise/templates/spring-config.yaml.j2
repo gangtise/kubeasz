@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+data:
+  COMMAND_TIMEOUT: {{ COMMAND_TIMEOUT }}
+  CONNECT_TIMEOUT: {{ CONNECT_TIMEOUT }}
+  ES_CLUSTER_NAME: {{ ES_CLUSTER_NAME }}
+  ES_NODES: {{ ES_NODES }}
+  EUREKA_SERVER: {{ EUREKA_SERVER }}
+  KAFKA_SERVERS: {{ KAFKA_SERVERS }}
+  LOG_FLATFILE_PATH: {{ LOG_FLATFILE_PATH }}
+  READ_TIMEOUT: {{ READ_TIMEOUT }}
+  REDIS_NODES: {{ REDIS_NODES }}
+  REDIS_PASSWORD: {{ REDIS_PASSWORD }}
+  SPRING_ACTIVE: {{ SPRING_ACTIVE }}
+kind: ConfigMap
+metadata:
+  name: spring-config
+  namespace: {{ spring_app_namespace }}
+

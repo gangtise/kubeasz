@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gangtise-userinfo-service
+  namespace: {{ spring_app_namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gangtise-userinfo-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gangtise-userinfo-service
+        pod-template-hash: 65bf665fd9
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_URL
+              value: >-
+                jdbc:mysql://{{ MYSQL_URL }}/gangtise_user_tenant?useSSL=true&requireSSL=false&characterEncoding=UTF-8
+            - name: MYSQL_USERNAME
+              value: {{ MYSQL_USERNAME }}
+            - name: MYSQL_PASSWORD
+              value: {{ MYSQL_PASSWORD }}
+          envFrom:
+            - configMapRef:
+                name: spring-config
+          image: {{ userinfo_service_image }}
+          imagePullPolicy: Always
+          name: gangtise-userinfo-service
+          ports:
+            - containerPort: 10030
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gangtise-userinfo-service
+  namespace: {{ spring_app_namespace }}
+spec:
+  clusterIP: 10.234.39.60
+  ports:
+    - port: 10030
+      protocol: TCP
+      targetPort: 10030
+  selector:
+    app: gangtise-userinfo-service
+  type: ClusterIP
+

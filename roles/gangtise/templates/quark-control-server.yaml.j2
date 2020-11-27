@@ -1,0 +1,139 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s.kuboard.cn/layer: svc
+  name: quark-control-server
+  namespace: {{ ignite_namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: quark-control-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: quark-control-server
+    spec:
+      containers:
+        - image: {{ control_image }}
+          imagePullPolicy: IfNotPresent
+          name: quark-control-server
+          ports:
+            - containerPort: 9999
+              protocol: TCP
+            - containerPort: 11211
+              protocol: TCP
+            - containerPort: 47100
+              protocol: TCP
+            - containerPort: 47500
+              protocol: TCP
+            - containerPort: 49112
+              protocol: TCP
+            - containerPort: 10800
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 10900
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        nodeflag: ignite
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: ignite
+      serviceAccountName: ignite
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoSchedule
+          key: ignite-taint
+          operator: Exists
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quark-control-server
+  namespace: {{ ignite_namespace }}
+spec:
+  clusterIP: 10.234.248.202
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: rest
+      nodePort: 30009
+      port: 9999
+      protocol: TCP
+      targetPort: 9999
+  selector:
+    app: quark-control-server
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  type: NodePort
+---
+apiVersion: v1
+data:
+  application.yml: |
+    spring:
+      application:
+        name: quark-control-server
+
+      thymeleaf:
+        mode: LEGACYHTML5
+        cache: false
+      datasource:
+        url: jdbc:mysql://{{ MYSQL_URL }}/quark
+        driver-class-name: com.mysql.jdbc.Driver
+        username: {{ MYSQL_USERNAME }}
+        password: {{ MYSQL_PASSWORD }}
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          minimum-idle: 5
+          idle-timeout: 180000
+          maximum-pool-size: 10
+          auto-commit: true
+          pool-name: mysql-quark
+          max-lifetime: 1800000
+          connection-timeout: 30000
+          connection-test-query: SELECT 1
+
+    server:
+      port: 9999
+
+    quark:
+      work-dir: /root/control-server
+      ip-address: 192.168.1.89:47500..47510
+      driverClassNames: com.mysql.jdbc.Driver, com.microsoft.sqlserver.jdbc.SQLServerDriver, oracle.jdbc.driver.OracleDriver
+      ignite:
+        jdbc:
+          url: jdbc:ignite:thin://127.0.0.1
+          size: 10
+          user: 123
+          password: 456
+      rest-host: 192.168.1.15:8090
+      client-mode: true
+      persistence-enabled: false
+      user: root
+      password: 123456
+      client-id: maxwell_quark_pro
+      kubernetes-deploy: true
+kind: ConfigMap
+metadata:
+  name: quark-control-server-config
+  namespace: {{ ignite_namespace }}
+
+

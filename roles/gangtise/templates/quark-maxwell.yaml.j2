@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quark-maxwell
+  namespace: {{ ignite_namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: quark-maxwell
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: quark-maxwell
+    spec:
+      containers:
+        - env:
+            - name: CONFIG_NAME
+              value: ignite-parse.properties
+          image: {{ maxwell_image }}
+          imagePullPolicy: Always
+          name: quark-maxwell
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /maxwell/bin/config
+              name: maxwell-config-vm
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        nodeflag: ignite
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: ignite
+      serviceAccountName: ignite
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoSchedule
+          key: ignite-taint
+          operator: Exists
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: ignite-parse.properties
+                path: ignite-parse.properties
+            name: maxwell-config
+          name: maxwell-config-vm
+---
+apiVersion: v1
+data:
+  ignite-parse.properties: >-
+    # tl;dr config
+
+    log_level=info
+
+
+    client_id=maxwell_quark_pro
+
+    replica_server_id=123
+
+
+    custom_producer.factory=com.gangtise.quark.synchronize.maxwell2.IgniteProducerFactory
+
+    custom_producer.ignite_url=jdbc:ignite:thin://ignite:10800/?autoReconnect=true
+
+    custom_producer.host=ignite:10800
+
+    custom_producer.sumbit_size=15000
+
+    custom_producer.wide_table=gangtise_jy.lc_balancesheetall,gangtise_jy.lc_cashflowstatementall,gangtise_jy.lc_incomestatementall,gangtise_jy.lc_mainindexnew
+
+    #output_file=/home/bigdata/mysql_log/mysql_binlog_data.log
+
+    #log_level=debug
+
+
+    # mysql login info
+
+    host={{ MYSQL_HOST }}
+
+    user={{ MYSQL_USERNAME }}
+
+    password={{ MYSQL_PASSWORD }}
+
+
+    port=MYSQL_PORT
+kind: ConfigMap
+metadata:
+  name: maxwell-config
+  namespace: {{ ignite_namespace }}
+
+		  

@@ -1,0 +1,160 @@
+---
+apiVersion: v1
+data:
+  application.yml: |-
+    spring:
+      application:
+        name: quark-response-client
+    server:
+      port: 9999
+
+    quark:
+      work-dir: /home/bigdata/response-client
+      #  ip-address: 10.0.2.13:47500..47510, 10.0.2.11:47500..47510, 10.0.2.12:47500..47510
+      ip-address: ignite:10800
+      driverClassNames: com.mysql.jdbc.Driver, com.microsoft.sqlserver.jdbc.SQLServerDriver, oracle.jdbc.driver.OracleDriver, oracle.jdbc.driver.OracleDriver
+      ignite:
+        jdbc:
+          url: jdbc:ignite:thin://127.0.0.1
+          size: 10
+          user: 123
+          password: 456
+      client-mode: true
+      persistence-enabled: false
+      kubernetes-deploy: true
+
+    eureka:
+      client:
+        service-url:
+          defaultZone: {{ EUREKA_SERVER }}
+
+      instance:
+        prefer-ip-address: true
+
+    es:
+      host: 10.0.2.10,10.0.2.11,10.0.2.12
+      port: 9200
+      scheme: http
+kind: ConfigMap
+metadata:
+  name: quark-response-client-config
+  namespace: {{ ignite_namespace }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s.kuboard.cn/layer: svc
+  name: quark-response-client
+  namespace: {{ ignite_namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: quark-response-client
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: quark-response-client
+    spec:
+      containers:
+        - env:
+            - name: JVM_OPTS
+              value: >-
+                -Xss456k -Xconcurrentio -XX:SurvivorRatio=4
+                -XX:TargetSurvivorRatio=80 -XX:MaxTenuringThreshold=15
+                -XX:+UseParNewGC -XX:+UseConcMarkSweepGC
+                -XX:CMSInitiatingOccupancyFraction=80
+                -XX:+UseCMSInitiatingOccupancyOnly
+                -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses
+                -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled
+                -Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.EPollSelectorProvider
+                -Dsun.net.inetaddr.ttl=60
+                -Dorg.mortbay.jetty.Request.maxFormContentSize=-1
+                -XX:+HeapDumpOnOutOfMemoryError
+                -XX:HeapDumpPath=/home/bigdata/logs -XX:+PrintGCDetails
+                -XX:+PrintTenuringDistribution -XX:+PrintGCDateStamps
+                -XX:+PrintHeapAtGC -Xloggc:/home/bigdata/logs/gc1.log
+                -XX:ErrorFile=/home/bigdata/logs/ 
+                -Dcom.sun.management.jmxremote=true 
+                -Dcom.sun.management.jmxremote.ssl=false
+                -Dcom.sun.management.jmxremote.authenticate=false
+                -Dcom.sun.management.jmxremote.port=22222
+          image: {{ response_client_image }}
+          imagePullPolicy: IfNotPresent
+          name: quark-response-client
+          ports:
+            - containerPort: 9999
+              protocol: TCP
+            - containerPort: 11211
+              protocol: TCP
+            - containerPort: 47100
+              protocol: TCP
+            - containerPort: 47500
+              protocol: TCP
+            - containerPort: 49112
+              protocol: TCP
+            - containerPort: 10800
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 10900
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /config
+              name: config-vm
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        nodeflag: ignite
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: ignite
+      serviceAccountName: ignite
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoSchedule
+          key: ignite-taint
+          operator: Exists
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: application.yml
+                path: application.yml
+            name: quark-response-client-config
+          name: config-vm
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quark-response-client
+  namespace: {{ ignite_namespace }}
+spec:
+  ports:
+    - name: rest
+      nodePort: 30999
+      port: 9999
+      protocol: TCP
+      targetPort: 9999
+  selector:
+    app: quark-response-client
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  type: NodePort
+

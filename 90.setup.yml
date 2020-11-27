@@ -70,3 +70,8 @@
   - kube-node
   roles:
   - cluster-addon
+  
+- hosts:
+  - kube-node
+  roles:
+  - gangtise
