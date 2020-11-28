@@ -10,7 +10,7 @@
   - etcd
   roles:
   - prepare
-
+  
 # [optional] to synchronize time of nodes with 'chrony'
 - hosts:
   - kube-master
@@ -72,6 +72,6 @@
   - cluster-addon
   
 - hosts:
-  - - hosts: localhost
+  - kube-node
   roles:
   - gangtise

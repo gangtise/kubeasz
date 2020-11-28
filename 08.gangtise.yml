@@ -1,4 +1,4 @@
 - hosts:
-  - localhost
+  - kube-node
   roles:
   - gangtise

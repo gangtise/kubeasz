@@ -97,7 +97,9 @@
   run_once: true
 
 - name: 创建kafka部署
-  shell: "echo 'kafka'"
+  shell: |
+    kubectl apply -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
+    kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka 
   run_once: true
 
 - name: 轮询等待ignite达到Running状态
