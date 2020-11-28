@@ -35,7 +35,7 @@
 
 - block:    
     - name: 删除spring_app容器令牌
-      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }}"
+      shell: "{{ bin_dir }}/kubectl delete secret {{ container_secret }} --namespace={{ spring_app_namespace }}"
       run_once: true
   when: 
   - spring_app_secret_info.stdout == "kubernetes.io/dockerconfigjson"
@@ -48,7 +48,7 @@
 
 - block:    
     - name: 删除ignite容器令牌
-      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }}"
+      shell: "{{ bin_dir }}/kubectl delete secret {{ container_secret }} --namespace={{ ignite_namespace }}"
       run_once: true
   when: 
   - ignite_secret_info.stdout == "kubernetes.io/dockerconfigjson"
