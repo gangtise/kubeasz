@@ -108,6 +108,7 @@
   retries: 10
   delay: 30
   tags: kafka
+  run_once: true
 
 - name: 创建kafka部署
   shell: |
@@ -122,6 +123,7 @@
   retries: 10
   delay: 30
   tags: ignite
+  run_once: true
 
 - name: 配置ignite部署
   shell: |

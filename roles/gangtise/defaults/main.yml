@@ -3,7 +3,7 @@
 spring_app_namespace: "spring-app"
 ignite_namespace: "ignite"
 kafka_namespace: "kafka"
-ignite_storageclass: "default"
+ignite_storageclass: "local-storage"
 
 container_secret: "gangtiseacr"
 container_registry: "gangtiseacr.azurecr.cn"
