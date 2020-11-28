@@ -24,7 +24,7 @@
 - name: 创建配置信息部署
   shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/{{ item }}.yaml"
   with_items:
-  - spring-app-namespace
+  - namespaces
   - spring-config
   run_once: true
 
