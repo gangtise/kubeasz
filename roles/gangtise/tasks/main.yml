@@ -29,23 +29,35 @@
   run_once: true
 
 - name: 获取容器令牌
-  command: "{{ bin_dir }}/kubectl get secret --all-namespaces"
-  register: secret_info
+  command: "{{ bin_dir }}/kubectl get secret --namespace={{ spring_app_namespace }} "
+  register: spring_app_secret_info
   run_once: true
 
 - block:    
     - name: 删除容器令牌
-      shell: "{{ bin_dir }}/kubectl delete secret docker-registry gangtiseacr --all-namespaces"
+      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }}"
       run_once: true
   when: 
-  - '"gangtiseacr" in secret_info.stdout'
+  - '"kubernetes.io/dockerconfigjson" in spring_app_secret_info.stdout'
   ignore_errors: true
 
+- name: 获取容器令牌
+  command: "{{ bin_dir }}/kubectl get secret --namespace={{ ignite_namespace }} "
+  register: ignite_secret_info
+  run_once: true
+
+- block:    
+    - name: 删除容器令牌
+      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }}"
+      run_once: true
+  when: 
+  - '"kubernetes.io/dockerconfigjson" in ignite_secret_info.stdout'
+  ignore_errors: true
 
 - name: 创建容器令牌
   shell: |
-    {{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
-    {{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
+    {{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
+    {{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
   run_once: true
 
 - name: 创建注册中心部署
