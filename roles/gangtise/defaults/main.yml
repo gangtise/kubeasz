@@ -1,8 +1,8 @@
 ---
 # defaults file for gangtise
 spring_app_namespace: "spring-app"
-
 ignite_namespace: "ignite"
+kafka_namespace: "kafka"
 ignite_storageclass: "default"
 
 container_secret: "gangtiseacr"

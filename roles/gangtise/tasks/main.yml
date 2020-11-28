@@ -96,14 +96,27 @@
   shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/quark-maxwell.yaml"
   run_once: true
 
-- name: 创建kafka部署
+- name: 创建kafka crd部署
   shell: |
-    kubectl apply -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
-    kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka 
+    kubectl apply -f 'https://strimzi.io/install/latest?namespace={{ kafka_namespace }}' -n {{ kafka_namespace }}  
   run_once: true
 
+- name: 轮询等待kafka crd达到Running状态
+  shell: "{{ bin_dir }}/kubectl get pod -n {{ kafka_namespace }} | grep strimzi-cluster-operator  | awk '{print $3}'"
+  register: kafka_status
+  until: kafka_status.stdout == "Running"
+  retries: 10
+  delay: 30
+  tags: kafka
+
+- name: 创建kafka部署
+  shell: |
+    kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n {{ kafka_namespace }}
+  run_once: true
+  tags: kafka
+
 - name: 轮询等待ignite达到Running状态
-  shell: "{{ bin_dir }}/kubectl get pod -n ignite | grep ignite-0  | awk '{print $3}'"
+  shell: "{{ bin_dir }}/kubectl get pod --namespace={{ ignite_namespace }} | grep ignite-0  | awk '{print $3}'"
   register: ignite_status
   until: ignite_status.stdout == "Running"
   retries: 10
@@ -113,13 +126,12 @@
 - name: 配置ignite部署
   shell: |
     echo "hello"
-    #"{{ bin_dir }}/kubectl exec -it ignite-0 -n ignite -- ./apache-ignite/bin/control.sh --activate --yes"
+    #"{{ bin_dir }}/kubectl exec -it ignite-0 --namespace={{ ignite_namespace }} -- ./apache-ignite/bin/control.sh --activate --yes"
   run_once: true
   tags: ignite
 
 - name: 轮询等待quark-control-server达到Running状态
-
-  shell: "{{ bin_dir }}/kubectl get pod -n ignite | grep quark-control-server | awk '{print $3}'"
+  shell: "{{ bin_dir }}/kubectl get pod --namespace={{ ignite_namespace }} | grep quark-control-server | awk '{print $3}'"
   register: ignite_control_status
   until: ignite_control_status.stdout == "Running"
   retries: 10
