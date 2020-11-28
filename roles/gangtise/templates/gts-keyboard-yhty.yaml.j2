@@ -22,6 +22,8 @@ spec:
       labels:
         app: gts-keyboard-yhty
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - env:
             - name: ES_CLUSTER_NAME

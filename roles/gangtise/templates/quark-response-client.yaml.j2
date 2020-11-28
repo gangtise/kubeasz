@@ -66,6 +66,8 @@ spec:
       labels:
         app: quark-response-client
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - env:
             - name: JVM_OPTS

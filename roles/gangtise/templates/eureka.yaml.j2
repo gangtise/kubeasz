@@ -19,6 +19,8 @@ spec:
       labels:
         app: eureka
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - env:
             - name: MY_POD_NAME

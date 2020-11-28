@@ -22,6 +22,8 @@ spec:
       labels:
         app: gangtise-auth-service
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - envFrom:
             - configMapRef:

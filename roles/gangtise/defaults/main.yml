@@ -5,6 +5,11 @@ spring_app_namespace: "spring-app"
 ignite_namespace: "ignite"
 ignite_storageclass: "default"
 
+container_secret: "gangtiseacr"
+container_registry: "gangtiseacr.azurecr.cn"
+container_user: "gangtiseACR"
+container_password: ""
+
 #images
 eureka_image: "'gangtiseacr.azurecr.cn/gangtise-eureka-service:1.0.0'"
 auth_service_image: "'gangtiseacr.azurecr.cn/gangtise-auth-service:1.0.3.1'"

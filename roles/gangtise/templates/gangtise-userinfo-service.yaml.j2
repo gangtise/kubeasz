@@ -23,6 +23,8 @@ spec:
         app: gangtise-userinfo-service
         pod-template-hash: 65bf665fd9
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - env:
             - name: MYSQL_URL

@@ -24,6 +24,8 @@ spec:
       labels:
         app: quark-control-server
     spec:
+      imagePullSecrets:
+      - name: {{ container_secret }}
       containers:
         - image: {{ control_image }}
           imagePullPolicy: IfNotPresent
