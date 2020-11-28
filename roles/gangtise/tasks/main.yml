@@ -29,7 +29,7 @@
   run_once: true
 
 - name: 获取spring_app容器令牌
-  command: "{{ bin_dir }}/kubectl get secret --namespace={{ spring_app_namespace }} "
+  command: "{{ bin_dir }}/kubectl get secret --namespace={{ spring_app_namespace }} | awk 'NR>1 {print $2}' | grep dockerconfigjson"
   register: spring_app_secret_info
   run_once: true
 
@@ -38,11 +38,11 @@
       shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }}"
       run_once: true
   when: 
-  - '"dockerconfigjson" in spring_app_secret_info.stdout'
+  - spring_app_secret_info.stdout == "kubernetes.io/dockerconfigjson"
   ignore_errors: true
 
 - name: 获取ignite容器令牌
-  command: "{{ bin_dir }}/kubectl get secret --namespace={{ ignite_namespace }} "
+  command: "{{ bin_dir }}/kubectl get secret --namespace={{ ignite_namespace }} | awk 'NR>1 {print $2}' | grep dockerconfigjson"
   register: ignite_secret_info
   run_once: true
 
@@ -51,7 +51,7 @@
       shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }}"
       run_once: true
   when: 
-  - '"dockerconfigjson" in ignite_secret_info.stdout'
+  - ignite_secret_info.stdout == "kubernetes.io/dockerconfigjson"
   ignore_errors: true
 
 - name: 创建容器令牌
