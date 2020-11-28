@@ -21,11 +21,6 @@
   - namespaces
   - spring-config
 
-- name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
-  register: pod_info
-  run_once: true
-
 - name: 创建配置信息部署
   shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/{{ item }}.yaml"
   with_items:
@@ -33,10 +28,24 @@
   - spring-config
   run_once: true
 
+- name: 获取容器令牌
+  command: "{{ bin_dir }}/kubectl get secret --all-namespaces"
+  register: secret_info
+  run_once: true
+
+- block:    
+    - name: 删除容器令牌
+      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --all-namespaces"
+      run_once: true
+  when: 
+  - '"{{ container_secret }}" in secret_info.stdout'
+  ignore_errors: true
+
+
 - name: 创建容器令牌
   shell: |
-    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }}  --docker-password={{ container_password }}"
-    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }}  --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }}  --docker-password={{ container_password }}"
+    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
+    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
   run_once: true
 
 - name: 创建注册中心部署
@@ -80,7 +89,6 @@
   run_once: true
 
 - name: 轮询等待ignite达到Running状态
-
   shell: "{{ bin_dir }}/kubectl get pod -n ignite | grep ignite-0  | awk '{print $3}'"
   register: ignite_status
   until: ignite_status.stdout == "Running"
