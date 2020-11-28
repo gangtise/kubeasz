@@ -44,8 +44,8 @@
 
 - name: 创建容器令牌
   shell: |
-    "{{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
-    "{{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
+    {{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
+    {{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
   run_once: true
 
 - name: 创建注册中心部署
