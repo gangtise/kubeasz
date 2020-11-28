@@ -76,7 +76,7 @@
   run_once: true
 
 - name: 创建kafka部署
-  shell: ""
+  shell: "echeo 'kafka'"
   run_once: true
 
 - name: 轮询等待ignite达到Running状态
