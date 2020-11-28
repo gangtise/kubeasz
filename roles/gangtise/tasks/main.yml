@@ -35,17 +35,17 @@
 
 - block:    
     - name: 删除容器令牌
-      shell: "{{ bin_dir }}/kubectl delete secret docker-registry {{ container_secret }} --all-namespaces"
+      shell: "{{ bin_dir }}/kubectl delete secret docker-registry gangtiseacr --all-namespaces"
       run_once: true
   when: 
-  - '"{{ container_secret }}" in secret_info.stdout'
+  - '"gangtiseacr" in secret_info.stdout'
   ignore_errors: true
 
 
 - name: 创建容器令牌
   shell: |
-    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
-    "{{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
+    "{{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
+    "{{ bin_dir }}/kubectl create secret docker-registry gangtiseacr --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}"
   run_once: true
 
 - name: 创建注册中心部署

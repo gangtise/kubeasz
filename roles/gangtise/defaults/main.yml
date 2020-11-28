@@ -5,7 +5,6 @@ spring_app_namespace: "spring-app"
 ignite_namespace: "ignite"
 ignite_storageclass: "default"
 
-container_secret: "gangtiseacr"
 container_registry: "gangtiseacr.azurecr.cn"
 container_user: "gangtiseACR"
 container_password: ""
