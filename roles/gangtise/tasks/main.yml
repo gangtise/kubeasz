@@ -93,7 +93,7 @@
     echo "hello"
     #"{{ bin_dir }}/kubectl exec -it ignite-0 -n ignite -- ./apache-ignite/bin/control.sh --activate --yes"
   run_once: true
- tags: ignite
+  tags: ignite
 
 - name: 轮询等待quark-control-server达到Running状态
 
