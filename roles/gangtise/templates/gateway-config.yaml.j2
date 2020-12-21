@@ -1,0 +1,129 @@
+piVersion: v1
+data:
+  application.yml: |-
+    server:
+      port: 1925
+    spring:
+      application:
+        name: gangtise-gateway-service
+      profiles:
+        active: ${SPRING_ACTIVE:sit}
+    eureka:
+      instance:
+        prefer-ip-address: true
+      client:
+        service-url:
+          defaultZone: ${EUREKA_SERVER:http://127.0.0.1:1025/eureka/}
+
+    zuul:
+
+      host:
+        connect-timeout-millis: 10000
+        socket-timeout-millis: 10000
+      routes:
+          auth:
+            path: /auth/**
+            serviceId: gangtise-auth-service
+            sensitive-headers:
+          user:
+            path: /user/**
+            serviceId: gangtise-userinfo-service
+          authority:
+            path: /authority/**
+            serviceId: gts-authority-service
+          userdata:
+            path: /userdata/**
+            serviceId: gts-userdata-service
+          subscripcenter:
+            path: /subscripcenter/**
+            serviceId: gts-subscripCenter-service
+          newscenter:
+            path: /newscenter/**
+            serviceId: gts-newscenter-service
+          fulltextsearch:
+            path: /fulltextsearch/**
+            serviceId: gts-fulltextsearch-service
+          keyboardsearch:
+            path: /keyboardsearch/**
+            serviceId: gts-keyboard-search
+          quarkresponse:
+            path: /quarkresponse/**
+            serviceId: quark-response-client
+          dataconvert:
+            path: /dataconvert/**
+            serviceId: gts-dataconvert-service2
+          easearch:
+            path: /easearch/**
+            serviceId: gts-ea-search
+          commonsearch:
+            path: /commonsearch/**
+            serviceId: gts-keyboard-common-search
+          articlesearch:
+            path: /articlesearch/**
+            serviceId: gts-article-search
+          download:
+            path: /download/**
+            serviceId: gts-download-service
+          searchyh:
+            path: /searchyh/**
+            serviceId: gts-yhty-search
+          newseditor:
+            path: /newseditor/**
+            serviceId: news-editor-service
+          indicator-search-service:
+            path: /indicatorsearch/**
+            serviceId: indicator-search-service
+          indicator-service:
+            path: /indicator/**
+            serviceId: indicator-service
+
+    ignore:
+      urls:
+        - /**/*.css
+        - /oauth/**
+        - /auth/oauth/**
+        - /actuator/**
+        - /hystrix/**
+        - /swagger-resource/**
+        - /swagger-ui.html/**
+        - /webjars/**
+        - /swagger-resources/**
+        - /v2/api-docs
+        - /favicon.ico
+        - /user/tbUserInfo/insert
+        - /user/tbUserInfo/userInsert
+        - /user/tbUserInfo/hasUserAccount
+        - /user/tbUserInfo/visitorInsert
+        - /user/tbUserInfo/userInsertByPassword
+        - /user/tbUserInfo/resetPasswordByUserAccount
+        - /user/tbUserInfo/visitorToUser
+        - /user/tbUserInfo/load/batch
+        - /newscenter/**
+        - /fulltextsearch/**
+        - /keyboardsearch/**
+        - /info/**
+        - /dataconvert/**
+        - /quarkresponse/**
+        - /user/Mail/sendMail
+        - /user/Mail/sendMailByUserAccount
+        - /user/Mail/sendMailByUserAccountApi
+        - /user/tbUserInfo/forgetPasswordApi
+        - /user/tbUserInfo/forgetPassword
+        - /indicatorsearch/**
+        - /indicator/**
+       
+      status:
+        - /auth/oauth/token
+        - /userdata/basic
+        - /subscripcenter/kafkaCenter/createKafkaTopic
+        - /newscenter/article/queryArticleByCondition
+        - /fulltextsearch/secu/search/keysearch
+        - /fulltextsearch/sector/search/criteriaQuery
+        - /keyboardsearch/article/get
+        - /info/emailSendApi/hutoolsendEmail
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: {{ spring_app_namespace }}
+
+

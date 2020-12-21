@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indicator-search-service-config
+  namespace: {{ spring_app_namespace }}
+data:
+  application.yml: |-
+    server:
+      port: 8091
+
+    spring:
+      application:
+        name: gangtise-investment-research-indicator-search-service
+
+    es:
+      hosts: 10.38.224.102
+      port: 9200
+      scheme: http
+    eureka:
+      client:
+        service-url:
+          defaultZone: ${EUREKA_SERVER:http://eureka-server1:1025/eureka,http://eureka-server2:1026/eureka}
+        fetch-registry: true
+      instance:
+        prefer-ip-address: true

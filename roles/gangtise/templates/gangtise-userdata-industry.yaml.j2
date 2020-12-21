@@ -2,7 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gts-keyboard-yhty
+  annotations:
+    deployment.kubernetes.io/revision: '2'
+  generation: 3
+  labels: {}
+  name: gangtise-userdata-industry
   namespace: {{ spring_app_namespace }}
 spec:
   progressDeadlineSeconds: 600
@@ -10,7 +14,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: gts-keyboard-yhty
+      app: gangtise-userdata-industry
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,32 +24,29 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: gts-keyboard-yhty
+        app: gangtise-userdata-industry
     spec:
       imagePullSecrets:
-      - name: {{ container_secret }}
+        - name: {{ container_secret }}
       containers:
         - env:
-            - name: ES_CLUSTER_NAME
-              value: elasticsearch
-            - name: ES_NODES
-              value: '10.0.2.10:9300,10.0.2.11:9300,10.0.2.12:9300'
+            - name: KAFKA_GROUP_ID
+              value: userdataGroup
+            - name: VISITOR_SYNC_TOPIC
+              value: user_data_sync
+            - name: MONGODB_URI
+              value: >-
+                {{ MONGODB_URI }}
           envFrom:
             - configMapRef:
                 name: spring-config
-          image: {{ keyboard_yhty_image }}
+          image: {{ gts_userdata_industry_image }}
           imagePullPolicy: IfNotPresent
-          name: gts-keyboard-yhty
+          name: gts-userdata-industry
           ports:
-            - containerPort: 13006
+            - containerPort: 12003
               protocol: TCP
-          resources:
-            limits:
-              cpu: 200m
-              memory: 800Mi
-            requests:
-              cpu: 200m
-              memory: 800Mi
+          resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
@@ -54,19 +55,4 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gts-keyboard-yhty
-  namespace: {{ spring_app_namespace }}
-spec:
-  clusterIP: None
-  ports:
-    - port: 13006
-      protocol: TCP
-      targetPort: 13006
-  selector:
-    app: gts-keyboard-yhty
-  type: ClusterIP
 

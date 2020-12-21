@@ -1,10 +1,8 @@
 ---
 # defaults file for gangtise
-spring_app_namespace: "spring-app"
-ignite_namespace: "ignite"
-kafka_namespace: "kafka"
-ignite_storageclass: "local-storage"
+spring_app_namespace: "Gangtise-Industry"
 
+# 密钥
 container_secret: "gangtiseacr"
 container_registry: "gangtiseacr.azurecr.cn"
 container_user: "gangtiseACR"
@@ -12,25 +10,26 @@ container_password: ""
 
 #images
 eureka_image: "'gangtiseacr.azurecr.cn/gangtise-eureka-service:1.0.0'"
-auth_service_image: "'gangtiseacr.azurecr.cn/gangtise-auth-service:1.0.3.1'"
-gateway_service_image: "'gangtiseacr.azurecr.cn/gangtise-gateway-service:1.0.3.4'"
-userinfo_service_image: "'gangtiseacr.azurecr.cn/gangtise-userinfo-service:1.0.3.3-batch'"
-keyboard_yhty_image: "'gangtiseacr.azurecr.cn/gts-yhty-search:1.0.0-batch'"
-ignite_image: "'gangtiseacr.azurecr.cn/quark-ignite:2.1'"
-control_image: "'gangtiseacr.azurecr.cn/quark-control-server:1.4'"
-maxwell_image: "'gangtiseacr.azurecr.cn/quark-maxwell:1.0.7.4'"
-response_client_image: "'gangtiseacr.azurecr.cn/quark-response-client:1.1.24.202'"
+auth_service_image: "'gangtiseacr.azurecr.cn/gangtise-auth-service:1.0.4.1-yh'"
+gateway_service_image: "'gangtiseacr.azurecr.cn/gangtise-gateway-service:1.0.4.2-yh'"
+gangtise_userinfo_image: "'gangtiseacr.azurecr.cn/gangtise-userinfo-service:1.0.4.8-yh'"
+gangtise_admin_image: "'gangtiseacr.azurecr.cn/gangtise-admin:1.0'"
+gts_userdata_industry_image: "'gangtiseacr.azurecr.cn/gts-userdata-industry:1.1.3'"
+indicator_service_image: "'gangtiseacr.azurecr.cn/gangtise-investment-research-indicator-service:1.1.1.7'"
+indicator_search_service_image: "'gangtiseacr.azurecr.cn/gangtise-investment-research-indicator-search-service:1.1.1.8'"
 
-eureka_name: "eureka"
+#url
 
-EUREKA_SERVER: "http://eureka-0.eureka.spring-app.svc.cluster.local:1025/eureka/,http://eureka-1.eureka.spring-app.svc.cluster.local:1025/eureka/"
+
+#config
+EUREKA_SERVER: "http://eureka-0.eureka:1025/eureka/,http://eureka-1.eureka:1025/eureka/"
 LOG_FLATFILE_PATH: /export/home/log
 
 COMMAND_TIMEOUT: "'80000'"
 CONNECT_TIMEOUT: "'20000'"
 
-ES_CLUSTER_NAME: elasticsearch
-ES_NODES: "'10.0.2.10:9300,10.0.2.11:9300,10.0.2.12:9300'"
+ES_CLUSTER_NAME: "'my-application'"
+ES_NODES: "'10.38.224.102:9300'"
 
 KAFKA_SERVERS: "'my-cluster-kafka-bootstrap:9092'"
 READ_TIMEOUT: "'20000'"
@@ -42,4 +41,8 @@ MYSQL_HOST: "gangtisedb.mysql.database.chinacloudapi.cn"
 MYSQL_PORT: "3306"
 MYSQL_USERNAME: ""
 MYSQL_PASSWORD: ""
-MYSQL_URL: "'gangtisedb.mysql.database.chinacloudapi.cn:3306'"
+MYSQL_URL: "jdbc:mysql://10.38.224.103:3306/gangtise_user_tenant?characterEncoding=UTF-8"
+
+VUE_APP_BASE_API: ""
+
+MONGODB_URI: ""

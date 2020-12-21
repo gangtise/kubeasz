@@ -6,7 +6,6 @@ data:
   ES_CLUSTER_NAME: {{ ES_CLUSTER_NAME }}
   ES_NODES: {{ ES_NODES }}
   EUREKA_SERVER: {{ EUREKA_SERVER }}
-  KAFKA_SERVERS: {{ KAFKA_SERVERS }}
   LOG_FLATFILE_PATH: {{ LOG_FLATFILE_PATH }}
   READ_TIMEOUT: {{ READ_TIMEOUT }}
   REDIS_NODES: {{ REDIS_NODES }}
@@ -16,10 +15,4 @@ kind: ConfigMap
 metadata:
   name: spring-config
   namespace: {{ spring_app_namespace }}
----
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: local-storage
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
+

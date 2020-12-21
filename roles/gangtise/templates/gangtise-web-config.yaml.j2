@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+data:
+  .env.production: |-
+    ENV = 'production'
+    # base api
+    VUE_APP_BASE_API = {{ VUE_APP_BASE_API }}
+kind: ConfigMap
+metadata:
+  name: gangtise-web-config
+  namespace: {{ spring_app_namespace }}
+    

@@ -24,12 +24,12 @@ spec:
         pod-template-hash: 65bf665fd9
     spec:
       imagePullSecrets:
-      - name: {{ container_secret }}
+        - name: {{ container_secret }}
       containers:
         - env:
             - name: MYSQL_URL
               value: >-
-                jdbc:mysql://{{ MYSQL_URL }}/gangtise_user_tenant?useSSL=true&requireSSL=false&characterEncoding=UTF-8
+                {{ MYSQL_URL }}
             - name: MYSQL_USERNAME
               value: {{ MYSQL_USERNAME }}
             - name: MYSQL_PASSWORD
@@ -37,7 +37,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: spring-config
-          image: {{ userinfo_service_image }}
+          image: {{ gangtise_userinfo_image }}
           imagePullPolicy: Always
           name: gangtise-userinfo-service
           ports:
@@ -65,5 +65,5 @@ spec:
       targetPort: 10030
   selector:
     app: gangtise-userinfo-service
-  type: NodePort
+  type: ClusterIP
 

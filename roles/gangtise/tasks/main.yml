@@ -3,29 +3,45 @@
 - name: 在 node 节点创建相关目录
   file: path={{ item }} state=directory
   with_items:
-  - /opt/gangtise/
+  - /home/gangtise/yaml/
 
 # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
 - name: 准备 gangtise 的部署文件
-  template: src={{ item }}.yaml.j2 dest=/opt/gangtise/{{ item }}.yaml
+  template: src={{ item }}.yaml.j2 dest=/home/gangtise/yaml/{{ item }}.yaml
   with_items:
-  - eureka
-  - gangtise-auth-service
-  - gangtise-gateway-service
-  - gangtise-userinfo-service
-  - gts-keyboard-yhty
-  - ignite
-  - quark-control-server
-  - quark-maxwell
-  - quark-response-client
-  - namespaces
+  - kuboard
+  - metrics-server
+  - spring-app-namespace
   - spring-config
+  - gateway-config
+  - gangtise-web-config
+  - indicator-service-config
+  - indicator-search-service-config
+  - eureka
+  - gangtise-gateway-service
+  - gangtise-auth-service
+  - gangtise-userinfo-service
+  - gangtise-user-web
+  - gangtise-userdata-industry
+  - indicator-service
+  - indicator-service-search
+
+- name: 部署kuboard
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/{{ item }}.yaml"
+  with_items:
+  - kuboard
+  - metrics-server
+  run_once: true
 
 - name: 创建配置信息部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/{{ item }}.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/{{ item }}.yaml"
   with_items:
-  - namespaces
+  - spring-app-namespace
   - spring-config
+  - gateway-config
+  - gangtise-web-config
+  - indicator-service-config
+  - indicator-search-service-config
   run_once: true
 
 - name: 获取spring_app容器令牌
@@ -41,102 +57,48 @@
   - '"kubernetes.io/dockerconfigjson" in spring_app_secret_info.stdout'
   ignore_errors: true
 
-- name: 获取ignite容器令牌
-  command: "{{ bin_dir }}/kubectl get secret --namespace={{ ignite_namespace }} "
-  register: ignite_secret_info
-  run_once: true
-
-- block:    
-    - name: 删除ignite容器令牌
-      shell: "{{ bin_dir }}/kubectl delete secret {{ container_secret }} --namespace={{ ignite_namespace }}"
-      run_once: true
-  when: 
-  - '"kubernetes.io/dockerconfigjson" in ignite_secret_info.stdout'
-  ignore_errors: true
-
 - name: 创建容器令牌
   shell: |
     {{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ spring_app_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
-    {{ bin_dir }}/kubectl create secret docker-registry {{ container_secret }} --namespace={{ ignite_namespace }} --docker-server={{ container_registry }} --docker-username={{ container_user }} --docker-password={{ container_password }}
   run_once: true
 
 - name: 创建注册中心部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/eureka.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/eureka.yaml"
   run_once: true
 
 - name: 创建网关部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/gangtise-gateway-service.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/gangtise-gateway-service.yaml"
   run_once: true
 
 - name: 创建OAuth部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/gangtise-auth-service.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/gangtise-auth-service.yaml"
   run_once: true
 
 - name: 创建用户信息部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/gangtise-userinfo-service.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/gangtise-userinfo-service.yaml"
   run_once: true
 
-- name: 创建按键精灵部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/gts-keyboard-yhty.yaml"
+- name: 创建用户信息部署页面
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/gangtise-user-web.yaml"
   run_once: true
 
-- name: 创建ignite部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/ignite.yaml"
+- name: 创建用户数据中心
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/gangtise-userdata-industry.yaml"
   run_once: true
 
-- name: 创建ignite控制台部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/quark-control-server.yaml"
+- name: 创建用户计算中心
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/indicator-service.yaml"
   run_once: true
 
-- name: 创建ignite客户端服务部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/quark-response-client.yaml"
+- name: 创建用户查询中心
+  shell: "{{ bin_dir }}/kubectl apply -f /home/gangtise/yaml/indicator-service-search.yaml"
   run_once: true
 
-- name: 创建maxwell部署
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/gangtise/quark-maxwell.yaml"
-  run_once: true
-
-- name: 创建kafka crd部署
-  shell: |
-    kubectl apply -f 'https://strimzi.io/install/latest?namespace={{ kafka_namespace }}' -n {{ kafka_namespace }}  
-  run_once: true
-
-- name: 轮询等待kafka crd达到Running状态
-  shell: "{{ bin_dir }}/kubectl get pod -n {{ kafka_namespace }} | grep strimzi-cluster-operator  | awk '{print $3}'"
-  register: kafka_status
-  until: kafka_status.stdout == "Running"
-  retries: 10
-  delay: 30
-  tags: kafka
-  run_once: true
-
-- name: 创建kafka部署
-  shell: |
-    kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n {{ kafka_namespace }}
-  run_once: true
-  tags: kafka
-
-- name: 轮询等待ignite达到Running状态
-  shell: "{{ bin_dir }}/kubectl get pod --namespace={{ ignite_namespace }} | grep ignite-0  | awk '{print $3}'"
-  register: ignite_status
-  until: ignite_status.stdout == "Running"
-  retries: 10
-  delay: 30
-  tags: ignite
-  run_once: true
-
-- name: 配置ignite部署
-  shell: |
-    echo "hello"
-    #"{{ bin_dir }}/kubectl exec -it ignite-0 --namespace={{ ignite_namespace }} -- ./apache-ignite/bin/control.sh --activate --yes"
-  run_once: true
-  tags: ignite
-
-- name: 轮询等待quark-control-server达到Running状态
-  shell: "{{ bin_dir }}/kubectl get pod --namespace={{ ignite_namespace }} | grep quark-control-server | awk '{print $3}'"
-  register: ignite_control_status
-  until: ignite_control_status.stdout == "Running"
-  retries: 10
-  delay: 30
-  tags: ignite_control
-
+# - name: 轮询等待kafka crd达到Running状态
+#   shell: "{{ bin_dir }}/kubectl get pod -n {{ kafka_namespace }} | grep strimzi-cluster-operator  | awk '{print $3}'"
+#   register: kafka_status
+#   until: kafka_status.stdout == "Running"
+#   retries: 10
+#   delay: 30
+#   tags: kafka
+#   run_once: true

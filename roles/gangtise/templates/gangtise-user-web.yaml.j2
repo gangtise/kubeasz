@@ -2,7 +2,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gangtise-gateway-service
+  annotations:
+  labels:
+    app: gangtise-user-web
+  name: gangtise-user-web
   namespace: {{ spring_app_namespace }}
 spec:
   progressDeadlineSeconds: 600
@@ -10,7 +13,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: gangtise-gateway-service
+      app: gangtise-user-web
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,71 +22,73 @@ spec:
   template:
     metadata:
       annotations:
-        kubesphere.io/containerSecrets: ''
+        kubesphere.io/containerSecrets: '{"container-nwbair":"azure-acr"}'
+        logging.kubesphere.io/logsidecar-config: '{}'
       creationTimestamp: null
       labels:
-        app: gangtise-gateway-service
+        app: gangtise-user-web
     spec:
+      affinity: {}
       imagePullSecrets:
         - name: {{ container_secret }}
       containers:
-        - envFrom:
-            - configMapRef:
-                name: spring-config
-          image: {{ gateway_service_image }}
+        - image: {{ gangtise_admin_image }}
           imagePullPolicy: Always
           livenessProbe:
             exec:
               command:
                 - date
             failureThreshold: 3
-            initialDelaySeconds: 180
+            initialDelaySeconds: 120
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
-          name: gangtise-gateway-service
+          name: container-nwbair
           ports:
-            - containerPort: 1925
-              name: http-1925
+            - containerPort: 80
+              name: http-userweb
               protocol: TCP
-          resources:
-            limits:
-              cpu: '1'
-              memory: 960Mi
-            requests:
-              cpu: 300m
-              memory: 960Mi
+          resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
-            - mountPath: /config
-              mountPropagation: None
-              name: gateway-volume
+            - mountPath: /app/.env.production
+              name: volume-ekkx6m
               readOnly: true
+              subPath: app/.env.production
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
             defaultMode: 420
-            name: gateway-config
-          name: gateway-volume
+            items:
+              - key: .env.production
+                path: app/.env.production
+            name: gangtise-web-config
+          name: volume-ekkx6m
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: gangtise-gateway-service
+  labels:
+    app: gangtise-user-web
+  name: gangtise-user-web
   namespace: {{ spring_app_namespace }}
 spec:
+  externalTrafficPolicy: Cluster
   ports:
-    - nodePort: 30001
-      port: 1925
+    - name: http-userweb
+      port: 80
       protocol: TCP
-      targetPort: 1925
+      targetPort: 80
   selector:
-    app: gangtise-gateway-service
+    app: gangtise-user-web
+  sessionAffinity: None
   type: NodePort
 

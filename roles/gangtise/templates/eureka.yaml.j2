@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels: {}
-  name: {{ eureka_name }}
+  name: eureka
   namespace: {{ spring_app_namespace }}
 spec:
   podManagementPolicy: Parallel
@@ -20,7 +20,7 @@ spec:
         app: eureka
     spec:
       imagePullSecrets:
-      - name: {{ container_secret }}
+        - name: {{ container_secret }}
       containers:
         - env:
             - name: MY_POD_NAME
@@ -34,7 +34,7 @@ spec:
             - configMapRef:
                 name: spring-config
           image: {{ eureka_image }}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: IfNotPresent      
           name: eureka
           ports:
             - containerPort: 1025
@@ -65,7 +65,7 @@ metadata:
 spec:
   ports:
     - name: eureka
-      nodePort: 30108
+      nodePort: 23331
       port: 1025
       protocol: TCP
       targetPort: 1025
